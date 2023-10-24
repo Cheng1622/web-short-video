@@ -1,11 +1,11 @@
 package pkg
 
 import (
-	"blog/pkg/app"
-	"blog/pkg/errcode"
 	"strconv"
 	"strings"
 
+	"github.com/Cheng1622/web-short-video/pkg/app"
+	"github.com/Cheng1622/web-short-video/pkg/errcode"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
@@ -50,7 +50,8 @@ func New(c *gin.Context, db *gorm.DB) any {
 		app.ResponseError(c, errcode.CodeInvalidParam)
 	}
 	// args := map[string][]string{"eq|c": {"1"}}
-	var res []any
+	// var res []any
+	var res []map[string]any
 	slog.Info("filter-arg:", args)
 	for k, v := range args {
 		ks := strings.SplitN(k, `|`, 2)

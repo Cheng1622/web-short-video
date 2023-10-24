@@ -1,3 +1,3 @@
-function Home(props) {
+function Home() {
     
 }
