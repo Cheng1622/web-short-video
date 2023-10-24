@@ -10,7 +10,7 @@ import (
 
 func main() {
 	orm.InitSqlite()
-	orm.DB.AutoMigrate(&model.Video{})
+	orm.DB.AutoMigrate(&model.Video{}, &model.User{})
 
 	router := gin.Default()
 	v1 := router.Group("/api/v1")

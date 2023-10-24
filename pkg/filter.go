@@ -1,6 +1,9 @@
 package pkg
 
 import (
+	"blog/pkg/app"
+	"blog/pkg/errcode"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -26,16 +29,29 @@ var s2f = map[string]func(c any, v ...any) clause.Expression{
 	// neq：不等于
 	"neq": func(c any, v ...any) clause.Expression { return clause.Neq{Column: c, Value: v[0]} },
 	// eq：等于（equal）
+	// http://127.0.0.1:8080/api/v1/?eq|id=3
 	"eq":     func(c any, v ...any) clause.Expression { return clause.Eq{Column: c, Value: v[0]} },
 	"like":   func(c any, v ...any) clause.Expression { return clause.Like{Column: c, Value: v[0]} },
 	"isnull": func(c any, v ...any) clause.Expression { return isnull{Column: c} },
-	"offest": func(c any, v ...any) clause.Expression { return offest{Column: c, Value: v} },
 }
 
 func New(c *gin.Context, db *gorm.DB) any {
 	args := c.Request.URL.Query()
+	pageSizeStr := args.Get("pageSize")
+	pageNumStr := args.Get("pageNum")
+
+	pageSize, err := strconv.Atoi(pageSizeStr)
+	if err != nil {
+		app.ResponseError(c, errcode.CodeInvalidParam)
+	}
+
+	pageNum, err := strconv.Atoi(pageNumStr)
+	if err != nil {
+		app.ResponseError(c, errcode.CodeInvalidParam)
+	}
 	// args := map[string][]string{"eq|c": {"1"}}
 	var res []any
+	slog.Info("filter-arg:", args)
 	for k, v := range args {
 		ks := strings.SplitN(k, `|`, 2)
 		if len(ks) != 2 {
@@ -47,7 +63,7 @@ func New(c *gin.Context, db *gorm.DB) any {
 		}
 		slog.Info("", k, v)
 	}
-	err := db.Find(&res).Error
+	err = db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&res).Error
 	if err != nil {
 		slog.Error("", err)
 	}
@@ -57,17 +73,7 @@ func New(c *gin.Context, db *gorm.DB) any {
 // Gte greater than or equal to for where
 type isnull clause.Eq
 
-func (gte isnull) Build(builder clause.Builder) {
-	builder.WriteQuoted(gte.Column)
+func (eq isnull) Build(builder clause.Builder) {
+	builder.WriteQuoted(eq.Column)
 	builder.WriteString(" is null ")
-}
-
-// Gte greater than or equal to for where
-type offest clause.Eq
-
-// db.Offset((pageNumber - 1) * pageSize).Limit(pageSize).
-func (gte offest) Build(builder clause.Builder) {
-	builder.WriteQuoted(gte.Column)
-	builder.WriteString(" offest ")
-	builder.AddVar(builder, gte.Value, gte.Value)
 }
