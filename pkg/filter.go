@@ -4,8 +4,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Cheng1622/web-short-video/pkg/app"
-	"github.com/Cheng1622/web-short-video/pkg/errcode"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
@@ -39,18 +37,6 @@ func New(c *gin.Context, db *gorm.DB) any {
 	args := c.Request.URL.Query()
 	pageSizeStr := args.Get("pageSize")
 	pageNumStr := args.Get("pageNum")
-
-	pageSize, err := strconv.Atoi(pageSizeStr)
-	if err != nil {
-		app.ResponseError(c, errcode.CodeInvalidParam)
-	}
-
-	pageNum, err := strconv.Atoi(pageNumStr)
-	if err != nil {
-		app.ResponseError(c, errcode.CodeInvalidParam)
-	}
-	// args := map[string][]string{"eq|c": {"1"}}
-	// var res []any
 	var res []map[string]any
 	slog.Info("filter-arg:", args)
 	for k, v := range args {
@@ -64,7 +50,14 @@ func New(c *gin.Context, db *gorm.DB) any {
 		}
 		slog.Info("", k, v)
 	}
-	err = db.Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&res).Error
+
+	if pageSizeStr != "" && pageNumStr != "" {
+		pageSize, _ := strconv.Atoi(pageSizeStr)
+		pageNum, _ := strconv.Atoi(pageNumStr)
+		db.Offset((pageNum - 1) * pageSize).Limit(pageSize)
+	}
+	err := db.Find(&res).Error
+
 	if err != nil {
 		slog.Error("", err)
 	}

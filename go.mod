@@ -4,6 +4,7 @@ go 1.21.1
 
 require (
 	github.com/gin-gonic/gin v1.9.1
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	gorm.io/driver/sqlite v1.5.4
 	gorm.io/gorm v1.25.5

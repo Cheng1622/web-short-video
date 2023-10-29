@@ -11,6 +11,8 @@ const (
 	CodeTokenIsEmpty
 	CodeTokenInvalid
 	CodeNoLogin
+	CodeUpdatesFail
+	CodeDeleteFail
 )
 
 var codeMsgMap = map[ResCode]string{
@@ -22,6 +24,8 @@ var codeMsgMap = map[ResCode]string{
 	CodeTokenIsEmpty:    "token 为空",
 	CodeTokenInvalid:    "token非法",
 	CodeNoLogin:         "未登录",
+	CodeUpdatesFail:     "更新失败",
+	CodeDeleteFail:      "删除失败",
 }
 
 func (c ResCode) Msg() string {
